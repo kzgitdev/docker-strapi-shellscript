@@ -15,4 +15,4 @@ generate-env.sh shell script is to auto generate following files and directory.
 ```./generate-env.sh```
 
 3. step3: access the admin page  
-http://localhost/admin
+http://localhost:1337/admin
