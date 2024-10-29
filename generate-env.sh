@@ -2,6 +2,7 @@
 #   node:20.17.0-alpine3.20 / OS: Apline Linux 3.20.3 / node:1000:1000:sh / npm 10.8.2 / yarn 1.22.22
 USERID=$(id -u)
 GROUPID=$(id -g)
+STRAPI_PORT=1337
 
 cat <<EOF > .env
 # generated_at: $(date +%Y/%m/%d) $(date +%H:%M:%S)
@@ -46,7 +47,7 @@ services:
       - /etc/timezone:/etc/timezone:ro
       - ./src:/src
     ports:
-      - "80:1337"
+      - "${STRAPI_PORT}:1337"
     command: "npm run develop --port 1337"
     stdin_open: true
     tty: true
@@ -81,4 +82,4 @@ docker compose up -d
 docker compose ps -a
 echo ""
 echo "Successfuly! Strapi is installed!"
-echo "access to admin login: http://localhost/admin / http://localhost"
+echo "access to admin login: http://localhost:${STRAPI_PORT}/admin / http://localhost:${STRAPI_PORT}"
