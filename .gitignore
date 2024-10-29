@@ -1,0 +1,10 @@
+.env
+docker-compose.yml
+strapi.dockerfile
+src/
+# ./src/*
+# !./src/.gitkeep
+
+# without VSCode 
+.vscode/
+*.code-workspace
