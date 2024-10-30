@@ -109,7 +109,27 @@ docker image ls | grep strapi
 # execute docker compose command to install strapi
 echo "-----"
 echo "install strapi for docker container in ./strapi-data directory."
-docker compose run --rm strapi-app npx create-strapi@latest /src --no-run
+
+# メニューの表示
+echo "Select Strapi version."
+echo "1: strapi version 5 latest"
+echo "2: strapi version 4.12.1"
+echo -n "choose a number(1 or 2): "
+
+# wait a response 
+read choice
+
+# input number to install strapi
+if [ "$choice" == "1" ]; then
+    echo "Now installing strapi version5 ..."
+    docker compose run --rm strapi-app npx create-strapi@latest /src --no-run
+elif [ "$choice" == "2" ]; then
+    echo "Now installing strapi version 4.12.1 ..."
+    docker compose run --rm strapi-app npx create-strapi-app@4.12.1 /src --no-run
+else
+    echo "Invalid your number. Please enter 1 or 2."
+    exit 1
+fi
 
 # create docker image: astro-app:latest from astro.dockerfile
 #   execute docker build command
