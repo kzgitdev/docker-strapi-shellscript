@@ -1,8 +1,9 @@
 .env
 docker-compose.yml
 strapi.dockerfile
-strapi-data/
-astro-data/
+astro.dockerfile
+strapi/
+astro/
 # ./src/*
 # !./src/.gitkeep
 
