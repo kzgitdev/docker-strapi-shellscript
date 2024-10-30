@@ -3,6 +3,8 @@
 USERID=$(id -u)
 GROUPID=$(id -g)
 STRAPI_PORT=1337
+STRAPI_DATA="./strapi"
+ASTRO_DATA="./astro"
 
 cat <<EOF > .env
 # generated_at: $(date +%Y/%m/%d) $(date +%H:%M:%S)
@@ -34,6 +36,26 @@ RUN groupmod -g ${USERID} node && \
 USER node
 EOF
 
+# create Dockerfile: astro.dockerfile
+cat <<EOF > astro.dockerfile
+# syntax=docker/dockerfile:1
+# generated_at: $(date +%Y/%m/%d) $(date +%H:%M:%S)
+# syntax=docker/dockerfile:1
+FROM node:22.10.0-alpine3.20
+
+RUN apk upgrade --update-cache && \
+    apk add openssl bash shadow && \
+    rm -rf /var/cache/apk/*
+
+WORKDIR /src
+
+RUN groupmod -g ${GROUPID} node && \
+    usermod -u ${USERID} node && \
+    chown -R node:node /src
+
+USER node
+EOF
+
 # create docker-compose.yml
 cat <<EOF > docker-compose.yml
 # generated_at: $(date +%Y/%m/%d) $(date +%H:%M:%S)
@@ -45,7 +67,7 @@ services:
     volumes:
       - /etc/localtime:/etc/localtime:ro
       - /etc/timezone:/etc/timezone:ro
-      - ./strapi-data:/src
+      - ${STRAPI_DATA}:/src
     ports:
       - "${STRAPI_PORT}:1337"
     command: "npm run develop --port 1337"
@@ -58,7 +80,7 @@ services:
     volumes:
       - /etc/localtime:/etc/localtime:ro
       - /etc/timezone:/etc/timezone:ro
-      - ./astro-data:/src
+      - ${ASTRO_DATA}:/src
     ports:
       - "80:3000"
     command: "npm run dev -- --host 0.0.0.0 --port 3000"
@@ -72,15 +94,15 @@ echho "-----"
 echo "create strapi-app:latest docker image ...."
 docker build --no-cache -t strapi-app:latest -f strapi.dockerfile .
 
-STRAPI_DATA="./strapi-data"
+
 if [ ! -e ${STRAPI_DATA} ]; then
     mkdir ./${STRAPI_DATA}
     echo "-----"
     echo "./${STRAPI_DATA} directory is created."
 else
     echo "-----"
-    echo "./${STRAPI_DATA} directory arleady existed."
-    echo "if ./${STRAPI_DATA} is not empty, back up ./${STRAPI_DATA} and create ./${STRAPI_DATA} empty directory"
+    echo "${STRAPI_DATA} directory arleady existed."
+    echo "if ${STRAPI_DATA} is not empty, back up ${STRAPI_DATA} and create ${STRAPI_DATA} empty directory"
 fi
 docker image ls | grep strapi
 
@@ -95,22 +117,22 @@ echo "-----"
 echo "create astro-app:latest docker image ...."
 docker build --no-cache -t astro-app:latest -f astro.dockerfile .
 
-STRAPI_DATA="./astro-data"
+
 if [ ! -e ${ASTRO_DATA} ]; then
     mkdir ./${ASTRO_DATA}
     echo "-----"
-    echo "./${ASTRO_DATA} directory is created."
+    echo "${ASTRO_DATA} directory is created."
 else
     echo "-----"
-    echo "./${ASTRO_DATA} directory arleady existed."
-    echo "if ./${ASTRO_DATA} is not empty, back up ./${ASTRO_DATA} and create ./${ASTRO_DATA} empty directory"
+    echo "${ASTRO_DATA} directory arleady existed."
+    echo "if ${ASTRO_DATA} is not empty, back up ${ASTRO_DATA} and create ${ASTRO_DATA} empty directory"
 fi
 docker image ls | grep astro
 
-# execute docker compose command to install strapi
+# execute docker compose command to install astro
 echo "-----"
 echo "install astro for docker container in ./astro-data directory."
-docker compose run --rm atro-app npx create-strapi@latest /src
+docker compose run --rm astro-app npm create astro@latest /src
 
 # execute docker compose command to boot up strapi-app container
 echo "-----"
